@@ -18,12 +18,12 @@ import { useToast } from "@/hooks/use-toast"
 import { useParams } from "next/navigation"
 import Header from "@/components/ui/Header"
 
-// Define proper types instead of using 'any'
-interface Review {
+// Definimos una estructura interna que se usará para mapear los datos de calificaciones
+interface InternalReview {
   id: string | number
-  renterId: string | number
-  hostId: string | number
-  reservationId: string | number
+  renterId?: string | number
+  hostId?: string | number
+  reservationId?: string | number
   rating: number
   behaviorRating: number
   carCareRating: number
@@ -39,7 +39,7 @@ interface Review {
 }
 
 interface RentalHistory {
-  id: string | number
+  id: string | number | undefined
   car_model: string
   dates: string
   status: string
@@ -56,7 +56,14 @@ interface RenterDetailsType {
   email: string
   phone: string
   memberSince: string
-  reviews: Review[]
+  reviews: {
+    id: number | string
+    rating: number
+    comment: string
+    createdAt: string | Date
+    hostName?: string
+    hostPicture?: string
+  }[]
   reviewCount: number
   completedRentals: number
   rentalHistory: RentalHistory[]
@@ -145,6 +152,17 @@ export default function RenterDetails() {
           updatedAt: c.updatedAt ? new Date(c.updatedAt) : null,
           date: c.fecha_creacion ? new Date(c.fecha_creacion).toLocaleDateString() : "",
         }))
+        
+        // Transformamos los reviews internos al formato esperado por el componente RenterReviews
+        const formattedReviews = reviews.map((review) => ({
+          id: review.id,
+          rating: review.rating,
+          comment: review.comment,
+          createdAt: review.createdAt || new Date().toISOString(),
+          hostName: review.hostName,
+          hostPicture: review.hostPicture
+        }));
+        
         setRenterDetails({
           id: usuario.id,
           firstName: usuario.nombre?.split(" ")[0] || "",
@@ -158,18 +176,19 @@ export default function RenterDetails() {
           email: usuario.correo,
           phone: usuario.telefono,
           memberSince: usuario.fecha_creacion ? new Date(usuario.fecha_creacion).toLocaleDateString("es-ES") : "-",
-          reviews,
+          reviews: formattedReviews,
           reviewCount: reviews.length,
           completedRentals: reviews.length,
           rentalHistory: reviews.map((r) => ({
             id: r.reservationId,
+            // @ts-ignore - car_model podría no existir en algunos casos
             car_model: r.car_model || "-",
             dates: r.date,
             status: "Completado",
           })),
         })
         if (reviews.length > 0) {
-          const sum = reviews.reduce((acc: number, c: Review) => acc + c.rating, 0)
+          const sum = reviews.reduce((acc: number, c) => acc + c.rating, 0)
           setRating(sum / reviews.length)
           setTotal(reviews.length)
         } else {
@@ -291,7 +310,7 @@ export default function RenterDetails() {
 
                 {/* Reportar perfil */}
                 <ReportProfileDialog
-                  renterId={renterDetails.id}
+                  renterId={String(renterDetails.id)}
                   renterName={`${renterDetails.firstName} ${renterDetails.lastName}`}
                 >
                   <Button
