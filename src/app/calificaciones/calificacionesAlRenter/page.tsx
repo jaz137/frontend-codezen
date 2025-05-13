@@ -6,6 +6,7 @@ import Header from "@/components/ui/Header"
 import { Footer } from "@/components/ui/footer"
 import leoProfanity from "leo-profanity"
 import { API_URL } from "@/utils/bakend"
+import Image from 'next/image';
 import "./styles.css"
 
 // Extender la definicion de tipos para leo-profanity
@@ -203,6 +204,7 @@ export default function CalificacionesAlRenterPage() {
 
         setRenters(uniqueRenters)
       } catch (error) {
+        console.error("Error al cargar datos:", error)
         setError("No se pudieron cargar los datos. ¿Estás autenticado?")
       } finally {
         setIsLoading(false)
@@ -521,7 +523,7 @@ export default function CalificacionesAlRenterPage() {
                       {Array.isArray(renters) && renters.length > 0 ? (
                         renters.map((renter) => {
                           const calificacion = calificaciones.find((c) => c.reservaId === renter.idReserva)
-                          const carImage = renter.carImage || "/placeholder_car.svg"
+                         
                           return (
                             <div key={renter.id} className="rental-item">
                               <div className="rental-item-left">
@@ -845,7 +847,7 @@ export default function CalificacionesAlRenterPage() {
                               selected.rated && !estaDentroDePeriodoCalificacion(selected.fechaFin?.toString() || "")
                             }
                             rows={4}
-                            maxLength={500} // <- Nuevo límite superior
+                            maxLength={200} // <- Nuevo límite superior
                           />
                         </div>
 
@@ -859,7 +861,7 @@ export default function CalificacionesAlRenterPage() {
 
                           {rating.comentario && (
                             <>
-                              <div className="comment-char-count">{rating.comentario.length} / 500 caracteres</div>
+                              <div className="comment-char-count">{rating.comentario.length} / 200 caracteres</div>
 
                               {/* Validación del mínimo */}
                               {rating.comentario.length < 10 && (
@@ -886,7 +888,8 @@ export default function CalificacionesAlRenterPage() {
                                 !rating.comportamiento ||
                                 !rating.cuidado_vehiculo ||
                                 !rating.puntualidad ||
-                                comentarioOfensivo
+                                comentarioOfensivo ||((  rating.comentario.length < 10 ||
+                                  rating.comentario.length > 200) && rating.comentario.length!=0)
                               }
                               className="save-rating-button"
                             >
@@ -894,16 +897,24 @@ export default function CalificacionesAlRenterPage() {
                             </button>
                           )}
 
-                          <button
-                            onClick={() => {
-                              alert("Intentando borrar");
-                              handleBorrar(selected);
-                            }}
-                            className="delete-rating-button"
-                          >
-                            <Trash2 size={16} />
-                            Borrar calificación
+                          {selected.rated && estaDentroDePeriodoCalificacion(selected.fechaFin?.toString() || "") && (
+                          <button onClick={() => handleBorrar(selected)} className="delete-rating-button">
+                          <Trash2 size={16} />
+                          Borrar calificación
                           </button>
+                          )}
+
+                          {selected.rated && estaDentroDePeriodoCalificacion(selected.fechaFin?.toString() || "") && (
+                            <button
+                              onClick={handleGuardar}
+                              disabled={!rating.comportamiento || !rating.cuidado_vehiculo || !rating.puntualidad || comentarioOfensivo ||((  rating.comentario.length < 10 ||
+                                rating.comentario.length > 200) && rating.comentario.length!=0)}
+                              className="save-rating-button"
+                            >
+                              Guardar
+                            </button>
+                          )
+                          }
 
                           <button onClick={() => setShowRatingPanel(false)} className="close-rating-button">
                             {selected.rated || !estaDentroDePeriodoCalificacion(selected.fechaFin?.toString() || "")

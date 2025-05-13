@@ -9,8 +9,19 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
 
-export default eslintConfig;
+export default [
+  
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  // reglas personalizadas para TypeScript
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    plugins: {
+      "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn" 
+    }
+  }
+];

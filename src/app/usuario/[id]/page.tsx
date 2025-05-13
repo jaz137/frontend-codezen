@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card1"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {  Mail, Briefcase, Calendar, Shield, AlertCircle, UserPlus, MapPin, Flag } from "lucide-react"
+import { Mail, Briefcase, Calendar, Shield, AlertCircle, UserPlus, MapPin, Flag } from "lucide-react"
 import { API_URL } from "@/utils/bakend"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -18,12 +18,78 @@ import { useToast } from "@/hooks/use-toast"
 import { useParams } from "next/navigation"
 import Header from "@/components/ui/Header"
 
+// Define proper types instead of using 'any'
+interface Review {
+  id: string | number
+  renterId: string | number
+  hostId: string | number
+  reservationId: string | number
+  rating: number
+  behaviorRating: number
+  carCareRating: number
+  punctualityRating: number
+  comment: string
+  hostName: string
+  hostPicture?: string
+  renterName: string
+  createdAt: Date | null
+  updatedAt: Date | null
+  date: string
+  car_model?: string
+}
 
+interface RentalHistory {
+  id: string | number
+  car_model: string
+  dates: string
+  status: string
+}
+
+interface RenterDetailsType {
+  id: string | number
+  firstName: string
+  lastName: string
+  profilePicture: string
+  occupation: string
+  age: number | string
+  address: string
+  email: string
+  phone: string
+  memberSince: string
+  reviews: Review[]
+  reviewCount: number
+  completedRentals: number
+  rentalHistory: RentalHistory[]
+}
+
+interface Calificacion {
+  id: string | number
+  id_usuario?: string | number
+  usuarioId?: string | number
+  id_reserva?: string | number
+  reservationId?: string | number
+  comportamiento: number
+  cuidado_vehiculo: number
+  puntualidad: number
+  comentario: string
+  fecha_creacion?: string
+  updatedAt?: string
+  reserva?: {
+    carro?: {
+      usuario?: {
+        id: string | number
+        nombre: string
+        foto?: string
+      }
+    }
+  }
+  hostId?: string | number
+}
 
 export default function RenterDetails() {
   const params = useParams()
   const renterId = params.id
-  const [renterDetails, setRenterDetails] = useState<any | null>(null)
+  const [renterDetails, setRenterDetails] = useState<RenterDetailsType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -54,13 +120,15 @@ export default function RenterDetails() {
         }
         const usuario = await usuarioRes.json()
         // Obtener calificaciones
-        const calificacionesRes = await fetch(`${API_URL}/api/calificaciones-reserva?usuarioId=${renterId}`, { headers })
-        let calificaciones = []
+        const calificacionesRes = await fetch(`${API_URL}/api/calificaciones-reserva?usuarioId=${renterId}`, {
+          headers,
+        })
+        let calificaciones: Calificacion[] = []
         if (calificacionesRes.ok) {
           calificaciones = await calificacionesRes.json()
         }
-        
-        const reviews = calificaciones.map((c: any) => ({
+
+        const reviews = calificaciones.map((c: Calificacion) => ({
           id: c.id,
           renterId: c.id_usuario || c.usuarioId,
           hostId: c.reserva?.carro?.usuario?.id || c.hostId,
@@ -75,7 +143,7 @@ export default function RenterDetails() {
           renterName: usuario.nombre,
           createdAt: c.fecha_creacion ? new Date(c.fecha_creacion) : null,
           updatedAt: c.updatedAt ? new Date(c.updatedAt) : null,
-          date: c.fecha_creacion ? new Date(c.fecha_creacion).toLocaleDateString() : ""
+          date: c.fecha_creacion ? new Date(c.fecha_creacion).toLocaleDateString() : "",
         }))
         setRenterDetails({
           id: usuario.id,
@@ -83,7 +151,9 @@ export default function RenterDetails() {
           lastName: usuario.nombre?.split(" ").slice(1).join(" ") || "",
           profilePicture: usuario.foto || "/placeholder.svg",
           occupation: usuario.ocupacion || "No especificada",
-          age: usuario.fecha_nacimiento ? (new Date().getFullYear() - new Date(usuario.fecha_nacimiento).getFullYear()) : "-",
+          age: usuario.fecha_nacimiento
+            ? new Date().getFullYear() - new Date(usuario.fecha_nacimiento).getFullYear()
+            : "-",
           address: usuario.ciudad?.nombre || "No especificada",
           email: usuario.correo,
           phone: usuario.telefono,
@@ -95,11 +165,11 @@ export default function RenterDetails() {
             id: r.reservationId,
             car_model: r.car_model || "-",
             dates: r.date,
-            status: "Completado"
-          }))
+            status: "Completado",
+          })),
         })
         if (reviews.length > 0) {
-          const sum = reviews.reduce((acc: number, c: any) => acc + c.rating, 0)
+          const sum = reviews.reduce((acc: number, c: Review) => acc + c.rating, 0)
           setRating(sum / reviews.length)
           setTotal(reviews.length)
         } else {
@@ -178,7 +248,11 @@ export default function RenterDetails() {
               <div className="p-6 flex flex-col items-center text-center">
                 {/* Avatar */}
                 <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={renterDetails.profilePicture || "/placeholder.svg"} alt={renterDetails.firstName} className="object-cover" />
+                  <AvatarImage
+                    src={renterDetails.profilePicture || "/placeholder.svg"}
+                    alt={renterDetails.firstName}
+                    className="object-cover"
+                  />
                   <AvatarFallback className="bg-gray-200">{`${renterDetails.firstName.charAt(0)}${renterDetails.lastName.charAt(0)}`}</AvatarFallback>
                 </Avatar>
 
@@ -191,10 +265,17 @@ export default function RenterDetails() {
                 <div className="flex items-center justify-center mb-3">
                   {rating !== null ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      {[1,2,3,4,5].map(star => (
-                        <span key={star} style={{color: star <= Math.round(rating) ? "#facc15" : "#e5e7eb", fontSize: 20}}>★</span>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          style={{ color: star <= Math.round(rating) ? "#facc15" : "#e5e7eb", fontSize: 20 }}
+                        >
+                          ★
+                        </span>
                       ))}
-                      <span style={{marginLeft: 8, fontWeight: 500}}>{rating.toFixed(1)} ({total})</span>
+                      <span style={{ marginLeft: 8, fontWeight: 500 }}>
+                        {rating.toFixed(1)} ({total})
+                      </span>
                     </div>
                   ) : (
                     <span className="text-gray-500">Sin calificaciones</span>
@@ -334,14 +415,12 @@ export default function RenterDetails() {
 
                   {Array.isArray(renterDetails.rentalHistory) && renterDetails.rentalHistory.length > 0 ? (
                     <div className="mt-4 space-y-4">
-                      {renterDetails.rentalHistory.map((rental: any, index: number) => (
+                      {renterDetails.rentalHistory.map((rental: RentalHistory) => (
                         <div key={rental.id} className="border rounded-lg p-4">
                           <div className="flex justify-between items-start">
                             <div>
                               <h4 className="font-medium">{rental.car_model}</h4>
-                              <span className="text-sm text-muted-foreground">
-                                {rental.dates}
-                              </span>
+                              <span className="text-sm text-muted-foreground">{rental.dates}</span>
                             </div>
                             <Badge variant={rental.status === "Completado" ? "default" : "secondary"}>
                               {rental.status}

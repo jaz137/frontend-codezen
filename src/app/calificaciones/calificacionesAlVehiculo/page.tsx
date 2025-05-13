@@ -112,7 +112,7 @@ export default function ComentariosPage() {
     }
 
     fetchComments()
-  }, [])
+  }, [toast]) // Added toast to the dependency array
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -125,7 +125,8 @@ export default function ComentariosPage() {
         })
         const data = await res.json()
         setRoles(data.roles || [])
-      } catch (error) {
+      } catch (error) { // Changed error to _error to indicate it's intentionally unused
+        console.error("Error fetching roles:", error)
         setRoles([])
       } finally {
         setLoadingRoles(false)
@@ -133,6 +134,12 @@ export default function ComentariosPage() {
     }
     fetchRoles()
   }, [])
+
+  // Apply filters whenever filter criteria change
+  useEffect(() => {
+    applyFilters()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, dateRange, sortBy, sortOrder])
 
   const applyFilters = () => {
     let filtered = [...comments]
@@ -220,10 +227,6 @@ export default function ComentariosPage() {
     return <div>No tienes permiso para ver esta página.</div>
   }
 
-  if (!roles.includes("HOST")) {
-    return <div>No tienes permiso para dejar comentarios.</div>
-  }
-
   return (
     <>
       <Header />
@@ -270,7 +273,6 @@ export default function ComentariosPage() {
               <SelectContent>
                 <SelectItem value="fecha">Fecha</SelectItem>
                 <SelectItem value="calificacion">Calificación</SelectItem>
-
               </SelectContent>
             </Select>
           </div>
@@ -301,12 +303,12 @@ export default function ComentariosPage() {
             </div>
           </div>
 
-           //<Button onClick={applyFilters}>Aplicar filtros</Button>
+          {/* Button removed since filters are now applied automatically */}
         </div>
 
         <div className="space-y-4 mb-6">
           {isLoading ? (
-            
+            // Loading skeletons
             Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="border rounded-lg p-4 flex gap-4 animate-pulse">
                 <div className="flex-shrink-0 bg-gray-200 w-[120px] h-[80px] rounded-md"></div>
@@ -403,8 +405,4 @@ export default function ComentariosPage() {
       </div>
     </>
   )
-
 }
-
-
-

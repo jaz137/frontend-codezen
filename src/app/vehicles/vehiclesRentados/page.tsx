@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Header from "@/components/ui/Header"
 import { Footer } from "@/components/ui/footer"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -76,13 +76,7 @@ export default function VehiclesRentadosPage() {
     }
   }, [])
 
-  useEffect(() => {
-    if (userId) {
-      cargarReservaciones()
-    }
-  }, [userId, paginaActual, registrosPorPagina])
-
-  const cargarReservaciones = async () => {
+  const cargarReservaciones = useCallback(async () => {
     if (!userId) return
 
     setIsLoading(true)
@@ -100,33 +94,39 @@ export default function VehiclesRentadosPage() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       )
-      
+
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
       }
-      
+
       const data = await response.json()
-      
+
       // Asumiendo que la API devuelve { reservas: [], total: number }
       if (data.reservas) {
         setReservaciones(data.reservas)
         setTotalReservaciones(data.total)
       } else {
         // Si la API devuelve directamente el array
-      setReservaciones(data)
+        setReservaciones(data)
         setTotalReservaciones(data.length)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error:", error)
-      const errorMessage = error.message || "Error desconocido"
+      const errorMessage = error instanceof Error ? error.message : "Error desconocido"
       setError(`No se pudieron cargar las reservaciones: ${errorMessage}`)
       toast.error("No se pudieron cargar las reservaciones")
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userId, paginaActual, registrosPorPagina])
+
+  useEffect(() => {
+    if (userId) {
+      cargarReservaciones()
+    }
+  }, [userId, paginaActual, registrosPorPagina, cargarReservaciones])
 
   const getVarianteBadge = (estado: string) => {
     switch (estado) {
@@ -228,21 +228,21 @@ export default function VehiclesRentadosPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {new Date(reserva.fecha_inicio).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(reserva.fecha_inicio).toLocaleDateString("es-ES", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </TableCell>
                       <TableCell>
-                        {new Date(reserva.fecha_fin).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(reserva.fecha_fin).toLocaleDateString("es-ES", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </TableCell>
                       <TableCell>

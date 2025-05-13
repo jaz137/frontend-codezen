@@ -1,46 +1,41 @@
-"use client";
+"use client"
 
-import { useState , useEffect} from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Menu, User, LogIn, UserPlus, LogOut, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import { Menu, User, LogIn, UserPlus, LogOut, ChevronDown } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 export default function Header() {
-  const [user, setUser] = useState<{ nombre: string; foto: string } | null>(null);
-  const router = useRouter();
+  const [user, setUser] = useState<{ nombre: string; foto: string } | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const nombre = localStorage.getItem("nombre");
-    const foto = localStorage.getItem("foto");
+    const nombre = localStorage.getItem("nombre")
+    const foto = localStorage.getItem("foto")
     if (nombre && foto) {
-      setUser({ nombre, foto });
+      setUser({ nombre, foto })
     } else {
-      setUser(null);
+      setUser(null)
     }
-  }, []);
+  }, [])
 
   const handleLogout = () => {
-    localStorage.clear();
-    setUser(null);
-    router.push("/");
-  };
-
+    localStorage.clear()
+    setUser(null)
+    router.push("/")
+  }
 
   return (
     <header className="border-b">
@@ -76,13 +71,21 @@ export default function Header() {
                   Contacto
                 </Link>
                 <div className="mt-4 border-t pt-4">
-                {user ? (
+                  {user ? (
                     <>
                       <Link href="/perfil">
                         <div className="flex items-center gap-2 mb-4 hover:bg-accent hover:text-accent-foreground rounded-md p-2 cursor-pointer">
                           <Avatar className="h-8 w-8">
                             {user.foto && user.foto !== "default.jpg" ? (
-                              <img src={user.foto} alt={user.nombre} className="h-8 w-8 rounded-full" />
+                              <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                                <Image
+                                  src={user.foto || "/placeholder.svg"}
+                                  alt={user.nombre}
+                                  fill
+                                  sizes="32px"
+                                  className="object-cover"
+                                />
+                              </div>
                             ) : (
                               <AvatarFallback>{user.nombre.charAt(0)}</AvatarFallback>
                             )}
@@ -90,32 +93,21 @@ export default function Header() {
                           <div className="text-sm font-medium">{user.nombre}</div>
                         </div>
                       </Link>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={handleLogout}
-                      >
+                      <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Cerrar sesión
                       </Button>
                     </>
                   ) : (
                     <>
-                      
                       <Link href="/login">
-                        <Button
-                          variant="default"
-                          className="w-full justify-start mb-2"
-                        >
+                        <Button variant="default" className="w-full justify-start mb-2">
                           <LogIn className="mr-2 h-4 w-4" />
                           Iniciar sesión
                         </Button>
                       </Link>
                       <Link href="/registro">
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start"
-                        >
+                        <Button variant="outline" className="w-full justify-start">
                           <UserPlus className="mr-2 h-4 w-4" />
                           Registrarse
                         </Button>
@@ -151,11 +143,19 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
-                      {user.foto && user.foto !== "default.jpg" ? (
-                        <img src={user.foto} alt={user.nombre} className="h-8 w-8 rounded-full" />
-                      ) : (
-                        <AvatarFallback>{user.nombre.charAt(0)}</AvatarFallback>
-                      )}
+                    {user.foto && user.foto !== "default.jpg" ? (
+                      <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                        <Image
+                          src={user.foto || "/placeholder.svg"}
+                          alt={user.nombre}
+                          fill
+                          sizes="32px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <AvatarFallback>{user.nombre.charAt(0)}</AvatarFallback>
+                    )}
                   </Avatar>
                   <span className="text-sm font-medium">{user.nombre}</span>
                   <ChevronDown className="h-4 w-4 opacity-50" />
@@ -163,10 +163,10 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <Link href="/perfil">
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Mi perfil</span>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Mi perfil</span>
+                  </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
@@ -188,5 +188,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

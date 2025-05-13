@@ -30,7 +30,7 @@ import {
 import { API_URL } from "@/utils/bakend";
 import { Ciudad } from "@/utils/types";
 import Link from "next/link";
-
+import Image from 'next/image';
 type UserType = "HOST" | "RENTER" | null;
 
 export default function Form() {
@@ -300,7 +300,7 @@ export default function Form() {
           window.location.href = `${API_URL}/api/auth/google`;
         }}
       >
-        <img
+        <Image
           src="https://www.svgrepo.com/show/475656/google-color.svg"
           alt="Google"
           className="w-4 h-4"
