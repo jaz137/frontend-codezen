@@ -324,7 +324,7 @@ export default function ComentariosPage() {
             currentComments.map((comment) => (
               <div key={comment.id} className="border rounded-lg p-4 flex gap-4">
                 <div className="flex-shrink-0">
-                  <Image
+                  <img
                     src={comment.carro?.imagenes?.[0]?.data || "/placeholder.svg?height=80&width=120"}
                     alt={`${comment.carro?.marca || ""} ${comment.carro?.modelo || ""}`}
                     width={120}
