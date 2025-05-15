@@ -212,15 +212,15 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Tablero de Estado de Automóviles</h1>
+    <div className="p-2 sm:p-6 max-w-6xl mx-auto">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Tablero de Estado de Automóviles</h1>
       
       {/* Listado de vehículos en tarjetas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
         {cars.map((car) => (
           <div 
             key={car.id}
-            className={`border rounded-lg p-4 cursor-pointer transition-all ${
+            className={`border rounded-lg p-3 cursor-pointer transition-all overflow-hidden ${
               selectedCarId === car.id 
                 ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50' 
                 : 'hover:border-gray-300 hover:bg-gray-50'
@@ -228,11 +228,11 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
             onClick={() => setSelectedCarId(car.id)}
           >
             <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold text-lg">{car.marca} {car.modelo}</h3>
-                <p className="text-gray-600">{car.anio} • {car.placa}</p>
+              <div className="truncate mr-2">
+                <h3 className="font-bold text-base sm:text-lg truncate">{car.marca} {car.modelo}</h3>
+                <p className="text-gray-600 text-sm truncate">{car.anio} • {car.placa}</p>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
+              <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
                 car.estado === 'DISPONIBLE' 
                   ? 'bg-green-100 text-green-800' 
                   : car.estado === 'RESERVADO'
@@ -242,14 +242,14 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
                 {car.estado}
               </span>
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-              <div><span className="text-gray-500">Transmisión:</span> {car.transmision}</div>
-              <div><span className="text-gray-500">Precio/día:</span> ${car.precio_por_dia}</div>
-              <div>
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 text-sm">
+              <div className="truncate"><span className="text-gray-500">Transmisión:</span> {car.transmision}</div>
+              <div className="truncate"><span className="text-gray-500">Precio/día:</span> ${car.precio_por_dia}</div>
+              <div className="truncate">
                 <span className="text-gray-500">Combustible:</span> 
                 {car.combustiblesporCarro && car.combustiblesporCarro[0]?.combustible?.tipoDeCombustible || 'No especificado'}
               </div>
-              <div>
+              <div className="truncate">
                 <span className="text-gray-500">Ciudad:</span> 
                 {car.direccion?.provincia?.ciudad?.nombre || 'Ciudad no especificada'}
               </div>
@@ -260,42 +260,42 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
 
       {/* Detalle del vehículo seleccionado */}
       {selectedCar ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md overflow-x-hidden">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-lg sm:text-xl font-semibold truncate mr-2">
               {selectedCar.marca} {selectedCar.modelo} ({selectedCar.anio})
             </h2>
             <button 
               onClick={() => setSelectedCarId(null)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 flex-shrink-0"
             >
               Cerrar detalle
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded">
                 <h3 className="font-medium text-gray-700 mb-2">Información del Vehículo</h3>
-                <div className="space-y-2">
-                  <p><strong>VIM:</strong> {selectedCar.vim}</p>
-                  <p><strong>Placa:</strong> {selectedCar.placa || 'No registrada'}</p>
-                  <p><strong>Transmisión:</strong> {selectedCar.transmision}</p>
-                  <p><strong>Asientos/Puertas:</strong> {selectedCar.asientos} / {selectedCar.puertas}</p>
-                  <p><strong>SOAT:</strong> {selectedCar.soat ? 'Vigente' : 'No vigente'}</p>
-                  <p><strong>Mantenimientos:</strong> {selectedCar.num_mantenimientos}</p>
+                <div className="space-y-1 sm:space-y-2 text-sm sm:text-base">
+                  <p className="truncate"><strong>VIM:</strong> {selectedCar.vim}</p>
+                  <p className="truncate"><strong>Placa:</strong> {selectedCar.placa || 'No registrada'}</p>
+                  <p className="truncate"><strong>Transmisión:</strong> {selectedCar.transmision}</p>
+                  <p className="truncate"><strong>Asientos/Puertas:</strong> {selectedCar.asientos} / {selectedCar.puertas}</p>
+                  <p className="truncate"><strong>SOAT:</strong> {selectedCar.soat ? 'Vigente' : 'No vigente'}</p>
+                  <p className="truncate"><strong>Mantenimientos:</strong> {selectedCar.num_mantenimientos}</p>
                 </div>
               </div>
               
-              <div className="bg-gray-50 p-4 rounded">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded">
                 <h3 className="font-medium text-gray-700 mb-2">Ubicación</h3>
-                <p>{selectedCar.direccion?.calle} {selectedCar.direccion?.num_casa && `#${selectedCar.direccion.num_casa}`}</p>
-                <p>{selectedCar.direccion?.provincia?.ciudad?.nombre || 'Ciudad no especificada'}</p>
+                <p className="truncate text-sm sm:text-base">{selectedCar.direccion?.calle} {selectedCar.direccion?.num_casa && `#${selectedCar.direccion.num_casa}`}</p>
+                <p className="truncate text-sm sm:text-base">{selectedCar.direccion?.provincia?.ciudad?.nombre || 'Ciudad no especificada'}</p>
               </div>
             </div>
             
             <div className="space-y-4">
-              <div className={`p-4 rounded ${
+              <div className={`p-3 sm:p-4 rounded ${
                 selectedCar.estado === 'DISPONIBLE' 
                   ? 'bg-green-50 border-green-200' 
                   : selectedCar.estado === 'RESERVADO'
@@ -304,39 +304,39 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
               } border`}>
                 <h3 className="font-medium text-gray-700 mb-2">Estado Actual</h3>
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold">{selectedCar.estado}</span>
-                  <div className="text-3xl">
+                  <span className="text-base sm:text-lg font-semibold">{selectedCar.estado}</span>
+                  <div className="text-2xl sm:text-3xl">
                     {selectedCar.estado === 'DISPONIBLE' ? '✅' : 
                      selectedCar.estado === 'RESERVADO' ? '🕒' : '⛔'}
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded border border-blue-100">
-                  <p className="text-sm text-blue-600">Precio por día</p>
-                  <p className="text-2xl font-bold">${selectedCar.precio_por_dia}</p>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="bg-blue-50 p-3 sm:p-4 rounded border border-blue-100">
+                  <p className="text-xs sm:text-sm text-blue-600">Precio por día</p>
+                  <p className="text-xl sm:text-2xl font-bold">${selectedCar.precio_por_dia}</p>
                 </div>
-                <div className="bg-purple-50 p-4 rounded border border-purple-100">
-                  <p className="text-sm text-purple-600">Combustible</p>
-                  <p className="text-2xl font-bold">
+                <div className="bg-purple-50 p-3 sm:p-4 rounded border border-purple-100">
+                  <p className="text-xs sm:text-sm text-purple-600">Combustible</p>
+                  <p className="text-xl sm:text-2xl font-bold truncate">
                     {selectedCar.combustiblesporCarro && selectedCar.combustiblesporCarro[0]?.combustible?.tipoDeCombustible || 'No especificado'}
                   </p>
                 </div>
               </div>
               
-              <div className="bg-yellow-50 p-4 rounded border border-yellow-100">
+              <div className="bg-yellow-50 p-3 sm:p-4 rounded border border-yellow-100">
                 <h3 className="font-medium text-gray-700 mb-2">Características</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedCar.caracteristicasAdicionalesCarro && 
                    selectedCar.caracteristicasAdicionalesCarro.length > 0 ? (
                     selectedCar.caracteristicasAdicionalesCarro.map((caracteristica, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-100 rounded text-sm">
+                      <span key={index} className="px-2 py-1 bg-gray-100 rounded text-xs sm:text-sm">
                         {caracteristica.carasteristicasAdicionales.nombre}
                       </span>
                     ))
                   ) : (
-                    <span className="text-sm text-gray-500">No hay características registradas</span>
+                    <span className="text-xs sm:text-sm text-gray-500">No hay características registradas</span>
                   )}
                 </div>
               </div>
@@ -344,7 +344,7 @@ const CarDashboard = ({ hostId }: CarDashboardProps) => {
           </div>
         </div>
       ) : (
-        <div className="bg-gray-50 p-6 rounded-lg text-center text-gray-500">
+        <div className="bg-gray-50 p-4 sm:p-6 rounded-lg text-center text-gray-500">
           Seleccione un vehículo para ver detalles completos
         </div>
       )}
